@@ -1,0 +1,31 @@
+AddOptionMenu "OptionsMenu"
+{
+	StaticText ""
+	Submenu "Weather Options", "VisualEffects"
+}
+
+OptionValue "GraphicsSettings"
+{
+	0, "Off"
+	1, "Very Low"
+	2, "Low"
+	3, "Medium"
+	4, "High"
+	5, "Very High"
+	6, "Ultra"
+}
+
+OptionMenu "VisualEffects"
+{
+	title "Weather Options"
+	
+	Option "Weather Amount", "weather_amount", "GraphicsSettings"
+	Option "Splash Particles", "splash_particles", "GraphicsSettings"
+
+	StaticText ""
+	StaticText "NOTE: Playing on Ultra settings may cause the game to exceed the default", "Cream"
+	StaticText "maximum particle amount. Please adjust your maximum amount accordingly.", "Cream"
+	StaticText ""
+
+	Slider "Max Particles", "r_maxparticles", 4000, 18000, 250, 0
+}

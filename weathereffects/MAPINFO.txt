@@ -1,0 +1,7 @@
+GameInfo
+{
+	// MBase EventHandlers
+	AddEventHandlers = "SectorDataRegistry", "WorldAgentHandler"
+
+	AddEventHandlers = "WeatherHandler"
+}

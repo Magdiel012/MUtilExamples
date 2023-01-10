@@ -1,0 +1,2 @@
+user int weather_amount = 3;
+user int splash_particles = 3;
