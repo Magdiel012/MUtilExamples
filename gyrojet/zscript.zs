@@ -3,5 +3,9 @@ version "4.10.0"
 // MUtil
 #include "MUtilLib/zscript.zs"
 
+// Player
+#include "zscript/exampleplayer.zs"
+
 // Weapons
-#include "weapons/weaponbase.zs"
+#include "zscript/weaponbase.zs"
+#include "zscript/gyrojet.zs"

@@ -1,0 +1,109 @@
+//Drummle
+
+weapons/drummleout	DRUMOUT
+weapons/drummlein	DRUMIN
+weapons/dryfire		DRUMDRY
+
+$random weapons/drummlefire	{ dr1 dr2 dr3 }
+
+dr1 drumfir1
+dr2 drumfir2
+dr3 drumfir3
+
+$random doompistol/fire { pis1 pis2 pis3 pis4 }
+
+pis1 DSPIST1
+pis2 DSPIST2
+pis3 DSPIST3
+pis4 DSPIST4
+
+$random chaingun/fire { chg1 chg2 chg3 chg4 }
+
+chg1 DSCHGN1
+chg2 DSCHGN2
+chg3 DSCHGN3
+chg4 DSCHGN4
+
+$random plasmachine/fire { pl1 pl2 pl3 pl4 }
+
+pl1 DPLSM1
+pl2 DPLSM2
+pl3 DPLSM3
+pl4 DPLSM4
+
+chaingun/windup DSCHRUP
+
+chaingun/windloop DSCHRLP
+
+chaingun/winddown DSCHRDN
+
+$Random weapons/shell2  { DS76C1 DS76C2 DS76C3 DS76C4 }
+
+DS76C1 DS76C1
+DS76C2 DS76C2
+DS76C3 DS76C3
+DS76C4 DS76C4
+
+$Random weapons/shell3 { DS12G1 DS12G2 DS12G3 DS12G4 }
+
+DS12G1	 DS12G1
+DS12G2	 DS12G2
+DS12G3	 DS12G3
+DS12G4	 DS12G4
+
+$Random weapons/shell4  { DS451 DS452 DS453 DS454 }
+
+DS451	DS451
+DS452	DS452
+DS453	DS453
+DS454	DS454
+
+$random weapons/shell5 { M801 M802 M803 }
+
+M801 M8401
+M802 M8402
+M803 M8403
+
+world/drip				dsempty
+world/watersplash		dssplash
+world/watersplashsmall	dssplsml
+world/sludgegloop		dsploosh
+world/sludgegloopsmall	dsplosml
+world/lavasizzle		dslvsiz
+world/lavsiz2			dslvsiz2
+world/lavasizzlesmall	dslavsml
+
+$RANDOM weapons/ricochet { ric1 ric2 ric3 ric4}
+
+ric1 RIC01
+ric2 RIC02
+ric3 RIC03
+ric4 RIC04
+
+weapon/overheat DSSIZZLE
+weapon/overheat2 DSSIZL2
+weapon/click DRYFIRE
+weapon/click2 DSWEPCK
+weapon/pickup 	PICKUP
+Barrel/Hiss DSSIZZLE
+
+pickup/armor	DSAMRUP
+pickup/armor2	DSAMRU2
+pickup/health	DSHETHUP
+
+gyrojet/magins	DSGYRMI
+gyrojet/magout	DSGYRMO
+gyrojet/boltrel	DSGYRSR
+gyrojet/boltback DSGYRSB
+
+$random gyrojet/fire { g1 g2 g3 }
+
+g1	DSGYRF1
+g2	DSGYRF2
+g3	DSGYRF3
+
+$random gyrojet/pop { po1 po2 po3 }
+
+po1	DSPOP01
+po2	DSPOP02
+po3	DSPOP03

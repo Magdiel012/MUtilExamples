@@ -1,0 +1,258 @@
+actor WallSparks
+{
+	+RANDOMIZE
+	+FORCEXYBILLBOARD
+	+BOUNCEONFLOORS
+	+BOUNCEONCEILINGS
+	-NOGRAVITY
+	BounceType Grenade
+	Damage 0
+	BounceFactor 0.1
+	WallBounceFactor 0.1
+	Speed 75
+	Alpha 0.4
+	Scale 0.1
+
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_JumpIf(GetCVar("weapon_particle_toggle") == 0, "Death")
+		PRBM A 12 BRIGHT
+		Goto Death
+	Death:
+		TNT1 A 0
+		Stop
+	XDeath:
+		TNT1 A 0
+		Stop
+	}
+}
+
+
+
+actor MuzzleSmoke
+{
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+FLOORCLIP
+	+FORCEXYBILLBOARD
+	+NOINTERACTION
+	+DONTSPLASH
+	+CLIENTSIDEONLY
+	RenderStyle Add
+	Speed 1
+	Alpha 0.2
+	Radius 0
+	Height 0
+	Scale 0.8
+
+	States
+	{
+	Spawn:
+		NULL A 0 A_SetTranslucent(0.25)
+		TNT1 A 0 A_JumpIf(GetCVar("smoke_toggle") == 0, "Null")
+		SMOK ABCDEFGHIJKLMNOPQ 3 A_FadeOut(0.005)
+		Goto Death
+	Death:
+		TNT1 A 0
+		Stop
+	}
+}
+
+actor MuzzleSmoke4
+{
+	-NOGRAVITY
+	+CLIENTSIDEONLY
+	RenderStyle Add
+	MissileType TracerTrail2
+	Alpha 0.3
+	Radius 2
+	Height 2
+	Scale 0.8
+	PROJECTILE
+	Speed 12
+	Gravity 0.65
+
+	States
+	{
+	Spawn:
+		NULL A 0 A_SetTranslucent(0.25)
+		TNT1 A 0 A_JumpIf(GetCVar("smoke_toggle") == 0, "Null")
+		SMOK ABCDEFGHIJKLMNOPQ 2 BRIGHT {
+			A_SpawnItem("MuzzleSmoke2");
+		}
+		Goto Death
+	Death:
+		TNT1 A 0
+		Stop
+	}
+}
+
+
+actor MuzzleSmoke2 : MuzzleSmoke
+{
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+FLOORCLIP
+	+FORCEXYBILLBOARD
+	+NOINTERACTION
+	+DONTSPLASH
+	+CLIENTSIDEONLY
+	RenderStyle Add
+	Speed 1
+	Alpha 0.3
+	Radius 0
+	Height 0
+	Scale 0.8
+}
+
+actor MuzzleSmoke3 : MuzzleSmoke
+{
+	States
+	{
+	Spawn:
+		NULL A 0 A_SetTranslucent(0.25)
+		TNT1 A 0 A_JumpIf(GetCVar("smoke_toggle") == 0, "Null")
+		SMOK ABC 1 {
+			A_FadeOut(0.005);
+			A_CustomMissile("MuzzleSmoke4", 0, 0, Random(0, 360), 2, Random(0, 180));
+		}
+		Goto Death
+	Death:
+		TNT1 A 1
+		Stop
+	}
+}
+
+actor ExplosionSmokeSpawner
+{
+	+NOCLIP
+	Speed 30
+
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_JumpIf(GetCVar("smoke_toggle") == 0, "Null")
+		TNT1 A 0 A_CustomMissile("MuzzleSmoke3", 0, 0, Random(0, 360), 2, Random(0, 180))
+	Death:
+		TNT1 A 0
+		Stop
+	}
+
+}
+
+actor SmokeSpawner2
+{
+	+NOCLIP
+	Speed 20
+
+	States
+	{
+	Spawn:
+		NULL A 0 NoDelay A_JumpIf(GetCVar("smoke_toggle") == 0, "Null")
+		TNT1 A 1
+		TNT1 A 0 A_CustomMissile("MuzzleSmoke2", 0, 0, Random(0, 360), 2, Random(0, 180))
+		Goto Death
+	Death:
+		TNT1 A 0
+		Stop
+	}
+}
+
+
+actor SmokeSpawner
+{
+	+NOCLIP
+	Speed 20
+
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_JumpIf(GetCVar("smoke_toggle") == 0, "Null")
+		TNT1 A 0 A_CustomMissile("MuzzleSmoke", 0, 0, Random(0, 360), 2, Random(0, 180))
+		Goto Death
+	Death:
+		TNT1 A 0
+		Stop
+	}
+}
+
+actor RocketDebris
+{
+	+MISSILE
+	+RANDOMIZE
+	+FORCEXYBILLBOARD
+	-NOGRAVITY
+	+THRUACTORS
+	+GHOST
+	+THRUGHOST
+	RenderStyle Add
+	Damage 0
+	Gravity 0.3
+	BounceFactor 0.2
+	WallBounceFactor 0.2
+	Speed 15
+	Alpha 0.5
+	Scale 0.6
+
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_JumpIf(GetCVar("weapon_particle_toggle") == 0, "Null")
+		PRBM A 4 BRIGHT A_SetTranslucent(0.8,1)
+		TNT1 A 0 A_CustomMissile("RocketDebrisII", 0, 0, Random(0, 360), 2, Random(0, 180))
+		TNT1 A 0 A_CustomMissile("RocketDebrisII", 0, 0, Random(0, 360), 2, Random(0, 180))
+		PRBM A 4 BRIGHT A_SetTranslucent(0.7,1)
+		TNT1 A 0 A_CustomMissile("RocketDebrisII", 0, 0, Random(0, 360), 2, Random(0, 180))
+		TNT1 A 0 A_CustomMissile("RocketDebrisII", 0, 0, Random(0, 360), 2, Random(0, 180))
+		PRBM A 4 BRIGHT A_SetTranslucent(0.6,1)
+		TNT1 A 0 A_CustomMissile("RocketDebrisII", 0, 0, Random(0, 360), 2, Random(0, 180))
+		TNT1 A 0 A_CustomMissile("RocketDebrisII", 0, 0, Random(0, 360), 2, Random(0, 180))
+		PRBM A 4 BRIGHT A_SetTranslucent(0.4,1)
+		TNT1 A 0 A_CustomMissile("RocketDebrisII", 0, 0, Random(0, 360), 2, Random(0, 180))
+		TNT1 A 0 A_CustomMissile("RocketDebrisII", 0, 0, Random(0, 360), 2, Random(0, 180))
+		PRBM A 4 BRIGHT A_SetTranslucent(0.1,1)
+	Death:
+		TNT1 A 1
+		Stop
+	XDeath:
+		TNT1 A 1
+		Stop
+	}
+}
+
+actor RocketDebrisII
+{
+	+MISSILE
+	+RANDOMIZE
+	+FORCEXYBILLBOARD
+	-NOGRAVITY
+	+THRUACTORS
+	+GHOST
+	+THRUGHOST
+	Damage 0
+	Gravity 0.3
+	BounceFactor 0.2
+	WallBounceFactor 0.2
+	RenderStyle Add
+	Speed 10
+	Alpha 0.5
+	Scale 0.3
+
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_JumpIf(GetCVar("weapon_particle_toggle") == 0, "Null")
+		PRBM A 4 BRIGHT A_SetTranslucent(0.8,1)
+		PRBM A 4 BRIGHT A_SetTranslucent(0.7,1)
+		PRBM A 4 BRIGHT A_SetTranslucent(0.6,1)
+		PRBM A 4 BRIGHT A_SetTranslucent(0.4,1)
+		PRBM A 4 BRIGHT A_SetTranslucent(0.1,1)
+	Death:
+		TNT1 A 1
+		Stop
+	XDeath:
+		TNT1 A 1
+		Stop
+	}
+}
