@@ -16,9 +16,7 @@ actor WallSparks
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay A_JumpIf(GetCVar("weapon_particle_toggle") == 0, "Death")
 		PRBM A 12 BRIGHT
-		Goto Death
 	Death:
 		TNT1 A 0
 		Stop
@@ -49,8 +47,7 @@ actor MuzzleSmoke
 	States
 	{
 	Spawn:
-		NULL A 0 A_SetTranslucent(0.25)
-		TNT1 A 0 A_JumpIf(GetCVar("smoke_toggle") == 0, "Null")
+		NULL A 0 NoDelay A_SetTranslucent(0.25)
 		SMOK ABCDEFGHIJKLMNOPQ 3 A_FadeOut(0.005)
 		Goto Death
 	Death:
@@ -76,8 +73,7 @@ actor MuzzleSmoke4
 	States
 	{
 	Spawn:
-		NULL A 0 A_SetTranslucent(0.25)
-		TNT1 A 0 A_JumpIf(GetCVar("smoke_toggle") == 0, "Null")
+		NULL A 0 NoDelay A_SetTranslucent(0.25)
 		SMOK ABCDEFGHIJKLMNOPQ 2 BRIGHT {
 			A_SpawnItem("MuzzleSmoke2");
 		}
@@ -111,8 +107,7 @@ actor MuzzleSmoke3 : MuzzleSmoke
 	States
 	{
 	Spawn:
-		NULL A 0 A_SetTranslucent(0.25)
-		TNT1 A 0 A_JumpIf(GetCVar("smoke_toggle") == 0, "Null")
+		NULL A 0 NoDelay A_SetTranslucent(0.25)
 		SMOK ABC 1 {
 			A_FadeOut(0.005);
 			A_CustomMissile("MuzzleSmoke4", 0, 0, Random(0, 360), 2, Random(0, 180));
@@ -132,8 +127,7 @@ actor ExplosionSmokeSpawner
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay A_JumpIf(GetCVar("smoke_toggle") == 0, "Null")
-		TNT1 A 0 A_CustomMissile("MuzzleSmoke3", 0, 0, Random(0, 360), 2, Random(0, 180))
+		TNT1 A 0 NoDelay A_CustomMissile("MuzzleSmoke3", 0, 0, Random(0, 360), 2, Random(0, 180))
 	Death:
 		TNT1 A 0
 		Stop
@@ -149,9 +143,7 @@ actor SmokeSpawner2
 	States
 	{
 	Spawn:
-		NULL A 0 NoDelay A_JumpIf(GetCVar("smoke_toggle") == 0, "Null")
-		TNT1 A 1
-		TNT1 A 0 A_CustomMissile("MuzzleSmoke2", 0, 0, Random(0, 360), 2, Random(0, 180))
+		TNT1 A 0 NoDelay A_CustomMissile("MuzzleSmoke2", 0, 0, Random(0, 360), 2, Random(0, 180))
 		Goto Death
 	Death:
 		TNT1 A 0
@@ -168,8 +160,7 @@ actor SmokeSpawner
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay A_JumpIf(GetCVar("smoke_toggle") == 0, "Null")
-		TNT1 A 0 A_CustomMissile("MuzzleSmoke", 0, 0, Random(0, 360), 2, Random(0, 180))
+		TNT1 A 0 NoDelay A_CustomMissile("MuzzleSmoke", 0, 0, Random(0, 360), 2, Random(0, 180))
 		Goto Death
 	Death:
 		TNT1 A 0
@@ -198,8 +189,7 @@ actor RocketDebris
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay A_JumpIf(GetCVar("weapon_particle_toggle") == 0, "Null")
-		PRBM A 4 BRIGHT A_SetTranslucent(0.8,1)
+		PRBM A 4 NoDelay BRIGHT A_SetTranslucent(0.8,1)
 		TNT1 A 0 A_CustomMissile("RocketDebrisII", 0, 0, Random(0, 360), 2, Random(0, 180))
 		TNT1 A 0 A_CustomMissile("RocketDebrisII", 0, 0, Random(0, 360), 2, Random(0, 180))
 		PRBM A 4 BRIGHT A_SetTranslucent(0.7,1)
@@ -242,8 +232,7 @@ actor RocketDebrisII
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay A_JumpIf(GetCVar("weapon_particle_toggle") == 0, "Null")
-		PRBM A 4 BRIGHT A_SetTranslucent(0.8,1)
+		PRBM A 4 NoDelay BRIGHT A_SetTranslucent(0.8,1)
 		PRBM A 4 BRIGHT A_SetTranslucent(0.7,1)
 		PRBM A 4 BRIGHT A_SetTranslucent(0.6,1)
 		PRBM A 4 BRIGHT A_SetTranslucent(0.4,1)

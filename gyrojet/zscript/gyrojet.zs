@@ -42,8 +42,8 @@ class Gyrojet : WeaponBase
 
 		WeaponBase.MaxRecoilTranslationX 20.0;
 		WeaponBase.MaxRecoilTranslationY 10.0;
-		WeaponBase.MaxRecoilScaleX 0.6;
-		WeaponBase.MaxRecoilScaleY 0.6;
+		WeaponBase.MaxRecoilScaleX 1.4;
+		WeaponBase.MaxRecoilScaleY 1.4;
 		WeaponBase.RecoilResponse 40.0;
 		WeaponBase.RecoilRigidity 26.0;
 
@@ -64,20 +64,20 @@ class Gyrojet : WeaponBase
 		GYRI A 1 A_SetBaseOffset(32, 69);
 		GYRI A 1 A_SetBaseOffset(22, 58);
 		GYRI A 1 A_SetBaseOffset(2, 34);
-		GYRI A 2 A_WeaponRecoil((-3.25, -6.5));
-		GYRI A -1 A_RaiseSMNotify(16);
-		Stop;
-	SwitchingOut:
-		GYRI A 1 A_LowerSMNotify(16);
+		GYRI A 1 A_RaiseSMNotify(16);
 		Wait;
 
+	SwitchingOut:
+		GYRI A 1 A_LowerSMNotify(16);
+		Loop;
+
 	Idle:
-		GYRI A 1 A_WeaponReadyNoFire;
+		GYRI A 1 A_WeaponReady(WRF_NOFIRE);
 		Loop;
 
 	Firing:
 		GYRF A 1 {
-			A_WeaponRecoil((3, 5), (0.3625, 0.3625));
+			A_WeaponRecoil((3, 5), 0.0, (1.15, 1.15));
 			// A_QuakeEx(2, 3, 2, 3, 0, 40, flags: QF_SCALEDOWN);
 			A_SendEventToSM('WeaponFired');
 			A_SpawnEffect("SmokeSpawner", (12.5, 8.0, 38.0), 0.0, 0.0, 0.0);
@@ -87,6 +87,7 @@ class Gyrojet : WeaponBase
 		GYRI A 1;
 		---- A 0 A_SendEventToSM('FireComplete');
 		---- A 0 A_SendEventToSM('AnimComplete');
+		Stop;
 
 	ReloadStart:
 		TNT1 A 0 A_StartSound("gyrojet/magout", 0);
@@ -130,7 +131,7 @@ class Gyrojet : WeaponBase
 				break;
 
 			case BT_ALTATTACK:
-				A_StartSound("weapon/click2", CHAN_AUTO);
+				S_StartSound("weapon/click2", CHAN_AUTO);
 				CycleFireMode();
 				break;
 
@@ -277,7 +278,7 @@ class SMGyrojetIdle : SMWeaponState
 	override void EnterState()
 	{
 		let gyro = Gyrojet(GetWeapon());
-		gyro.GetHUDExtension().SendEventToSM('WeaponActive');
+		// gyro.GetHUDExtension().SendEventToSM('WeaponActive');
 		SetWeaponSprite("Idle");
 	}
 }
@@ -290,7 +291,7 @@ class SMGyrojetFiring : SMWeaponState
 	{
 		shotCount = 0;
 		let gyro = Gyrojet(GetWeapon());
-		gyro.GetHUDExtension().SendEventToSM('WeaponActive');
+		// gyro.GetHUDExtension().SendEventToSM('WeaponActive');
 		SetWeaponSprite("Firing");
 	}
 
@@ -303,10 +304,10 @@ class SMGyrojetFiring : SMWeaponState
 				gyro.FireProjectile(
 					"GyroRocket",
 					(1.0, 1.0),
-					(14.0, 8.0, 5.0),
+					(10.0, 8.0, 4.0),
 					ammoCost: 0);
 				gyro.m_Rounds -= gyro.AmmoUse1;
-				gyro.GetHUDExtension().SendEventToSM(eventID);
+				// gyro.GetHUDExtension().SendEventToSM(eventID);
 				return true;
 
 			case 'FireComplete':
@@ -331,8 +332,8 @@ class SMGyrojetReloadStart : SMWeaponState
 	override void EnterState()
 	{
 		SetWeaponSprite('ReloadStart');
-		let gyro = TestGyrojet(GetWeapon());
-		gyro.GetHUDExtension().SendEventToSM('WeaponReloading');
+		let gyro = Gyrojet(GetWeapon());
+		// gyro.GetHUDExtension().SendEventToSM('WeaponReloading');
 	}
 }
 
@@ -343,10 +344,10 @@ class SMGyrojetReloadMid : SMWeaponState
 		switch (eventId)
 		{
 			case 'MagLoaded':
-				let gyro = TestGyrojet(GetWeapon());
+				let gyro = Gyrojet(GetWeapon());
 				int loadAmount = gyro.m_Capacity - gyro.m_Rounds;
 				gyro.Ammo1.Amount -= loadAmount;
-				gyroj.m_Rounds += loadAmount + min(0, gyro.Ammo1.Amount);
+				gyro.m_Rounds += loadAmount + min(0, gyro.Ammo1.Amount);
 				gyro.Ammo1.Amount = clamp(gyro.Ammo1.Amount, 0, gyro.Ammo1.BackpackMaxAmount);
 				return true;
 
@@ -357,8 +358,8 @@ class SMGyrojetReloadMid : SMWeaponState
 
 	override void ExitState()
 	{
-		let gyro = TestGyrojet(GetWeapon());
-		gyro.GetHUDExtension().SendEventToSM('ReloadComplete');
+		let gyro = Gyrojet(GetWeapon());
+		// gyro.GetHUDExtension().SendEventToSM('ReloadComplete');
 	}
 }
 
@@ -366,7 +367,7 @@ class SMGyrojetRefireTransition : SMTransitionPlay
 {
 	override bool CanPerform(Object data)
 	{
-		let gyro = TestGyrojet(data);
+		let gyro = Gyrojet(data);
 		return gyro.m_Rounds >= gyro.AmmoUse1
 			&& gyro.GetTicsSinceLastAttack() >= gyro.m_TicsPerAttack;
 	}
@@ -377,7 +378,7 @@ class SMGyrojetReloadInterruptTransition : SMGyrojetRefireTransition
 	override void OnTransitionPerformed(SMStatePlay inState)
 	{
 		let gyro = Gyrojet(inState.GetData());
-		gyro.GetHUDExtension().SendEventToSM('ReloadInterrupted');
+		// gyro.GetHUDExtension().SendEventToSM('ReloadInterrupted');
 	}
 }
 
@@ -402,12 +403,12 @@ class GyroRocket : ProjectileBase
 
 	States
 	{
-	Alive:
+	Spawn:
 		RKLP A 1 Bright;
 		Loop;
 
 	Death:
-		MISL B 0 Bright {
+		TNT1 A 0 Bright {
 			array<Actor> exclusions;
 			exclusions.Push(self);
 			exclusions.Push(target);
@@ -415,12 +416,12 @@ class GyroRocket : ProjectileBase
 			A_StartSound("gyrojet/pop", CHAN_AUTO);
 		}
 		TNT1 AA 0 {
-			A_SpawnProjectile("RocketDebris",0);
-			A_SpawnProjectile("SmokeSpawner",0);
+			A_SpawnProjectile("RocketDebris", 0.0);
+			A_SpawnProjectile("SmokeSpawner", 0.0);
 		}
-		EXPL ABCD 1 Bright A_SetTranslucent(0.8,1);
-		EXPL EFGH 1 Bright A_SetTranslucent(0.5,1);
-		EXPL IJKLMNO 1 Bright A_SetTranslucent(0.3,1);
+		EXPL ABCD 1 Bright A_SetTranslucent(0.8, 1);
+		EXPL EFGH 1 Bright A_SetTranslucent(0.5, 1);
+		EXPL IJKLMNO 1 Bright A_SetTranslucent(0.3, 1);
 		Stop;
 	}
 }

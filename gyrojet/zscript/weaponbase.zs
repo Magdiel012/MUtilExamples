@@ -491,18 +491,6 @@ class WeaponBase : DoomWeapon abstract
 		psp.scale = m_PSpriteScale.GetValue();
 	}
 
-	void WeaponReadyNoFire(int flags = 0)
-	{
-		if (!owner.Player) return;
-
-		DoReadyWeaponToSwitch(owner.Player, !(flags & WRF_NoSwitch));
-
-		if (!(flags & WRF_NoBob)) DoReadyWeaponToBob(owner.Player);
-
-		owner.Player.WeaponState |= GetButtonStateFlags(flags);
-		DoReadyWeaponDisableSwitch(owner.Player, flags & WRF_DisableSwitch);
-	}
-
 	action void A_SendEventToSM(name eventId)
 	{
 		invoker.SendEventToSM(eventId);
@@ -567,15 +555,6 @@ class WeaponBase : DoomWeapon abstract
 	action void A_SetBaseOffset(int x, int y)
 	{
 		invoker.SetBaseOffset(x, y);
-	}
-
-	/**
-	 * Stripped version of A_WeaponReady that only readies the weapon
-	 * for switching and bobbing.
-	 */
-	action void A_WeaponReadyNoFire(int flags = 0)
-	{
-		WeaponBase(invoker).WeaponReadyNoFire();
 	}
 
 	action void A_WeaponRecoil(vector2 offsetForce, double spinForce = 0.0, vector2 scaleForce = (1.0, 1.0))
@@ -1193,6 +1172,8 @@ class ProjectileBase : Actor
 
 	Default
 	{
+		RenderStyle "Normal";
+		Alpha 1.0;
 		Projectile;
 		+FORCEXYBILLBOARD;
 		+ProjectileBase.DRAWFROMHITBOXCENTER;
