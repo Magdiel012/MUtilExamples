@@ -42,9 +42,9 @@ class Gyrojet : WeaponBase
 
 		WeaponBase.MaxRecoilTranslationX 20.0;
 		WeaponBase.MaxRecoilTranslationY 10.0;
-		WeaponBase.MaxRecoilScaleX 1.4;
-		WeaponBase.MaxRecoilScaleY 1.4;
-		WeaponBase.RecoilResponse 40.0;
+		WeaponBase.MaxRecoilScaleX 1.6;
+		WeaponBase.MaxRecoilScaleY 1.6;
+		WeaponBase.RecoilResponse 34.0;
 		WeaponBase.RecoilRigidity 26.0;
 
 		WeaponBase.BobIntensityResponseTime 1.5 / TICRATE;
@@ -77,7 +77,7 @@ class Gyrojet : WeaponBase
 
 	Firing:
 		GYRF A 1 {
-			A_WeaponRecoil((3, 5), 0.0, (1.15, 1.15));
+			A_WeaponRecoil((2, 3), 0.0, (0.25, 0.25));
 			// A_QuakeEx(2, 3, 2, 3, 0, 40, flags: QF_SCALEDOWN);
 			A_SendEventToSM('WeaponFired');
 			A_SpawnEffect("SmokeSpawner", (12.5, 8.0, 38.0), 0.0, 0.0, 0.0);
