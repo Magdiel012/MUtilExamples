@@ -95,6 +95,12 @@ class WeaponBase : DoomWeapon
 	double m_BobIntensityResponseTime;
 	property BobIntensityResponseTime: m_BobIntensityResponseTime;
 
+	double m_BobInputAcceleratingResponseTime;
+	property BobInputAcceleratingResponseTime: m_BobInputAcceleratingResponseTime;
+	
+	double m_BobInputDeceleratingResponseTime;
+	property BobInputDeceleratingResponseTime: m_BobInputDeceleratingResponseTime;
+
 	double m_BobSpeedResponseTime;
 	property BobSpeedResponseTime: m_BobIntensityResponseTime;
 
@@ -109,6 +115,8 @@ class WeaponBase : DoomWeapon
 
 	protected InterpolatedDouble m_BobAmplitude;
 	protected InterpolatedDouble m_BobPlaybackSpeed;
+
+	private InterpolatedDouble m_BobInput;
 
 	private int m_TicsSinceLastAttack;
 
@@ -152,8 +160,10 @@ class WeaponBase : DoomWeapon
 
 		WeaponBase.BobIntensity 1.0;
 		WeaponBase.BobSpeed 1.0;
-		WeaponBase.BobIntensityResponseTime 2.0 / TICRATE;
-		WeaponBase.BobSpeedResponseTime 2.0 / TICRATE;
+		WeaponBase.BobInputAcceleratingResponseTime 0.08;
+		WeaponBase.BobInputDeceleratingResponseTime 1.5;
+		WeaponBase.BobIntensityResponseTime 0.05;
+		WeaponBase.BobSpeedResponseTime 0.05;
 	}
 
 	States
@@ -215,6 +225,8 @@ class WeaponBase : DoomWeapon
 		m_BobAmplitude.m_SmoothTime = m_BobIntensityResponseTime;
 		m_BobPlaybackSpeed = new("InterpolatedDouble");
 		m_BobPlaybackSpeed.m_SmoothTime = m_BobSpeedResponseTime;
+		m_BobInput = new("InterpolatedDouble");
+		m_BobInput.m_SmoothTime = m_BobInputAcceleratingResponseTime;
 
 		m_WeaponBobber = new("InterpolatedPSpriteTransform");
 		m_WeaponBobber.InterpolatedInit(1.0 / TICRATE);
@@ -596,7 +608,6 @@ class WeaponBase : DoomWeapon
 		m_WeaponLookSwayer.AddForce(swayForce);
 	}
 
-	// TODO: Use input weight to adjust bobbing.
 	private void WeaponBob()
 	{
 		double normalizedForwardMove = Math.Remap(
@@ -610,6 +621,14 @@ class WeaponBase : DoomWeapon
 
 		double moveInputStrength = MathVec2.Clamp((normalizedForwardMove, normalizedSideMove), -1.0, 1.0).Length();
 
+		m_BobInput.m_SmoothTime = m_BobInput.GetValue() <= moveInputStrength
+			? m_BobInputAcceleratingResponseTime
+			: m_BobInputDeceleratingResponseTime;
+
+		m_BobInput.m_Target = moveInputStrength;
+
+		m_BobInput.Update();
+
 		double previousMovementSpeed = (m_PreviousPlayerVel.x, m_PreviousPlayerVel.y).Length();
 		double movementSpeed = (owner.Vel.x, owner.Vel.y).Length();
 		double maxSpeed =
@@ -619,22 +638,10 @@ class WeaponBase : DoomWeapon
 
 		double speedPercentage = movementSpeed / maxSpeed;
 
-		m_BobAmplitude.m_Target = m_BobIntensity * owner.Player.GetMoveBob() * min(1.0, min(moveInputStrength, speedPercentage));
-
-		// Ease out of bob animation when movement input stops.
-		if (moveInputStrength ~== 0.0)
-		{
-			m_BobAmplitude.m_SmoothTime = m_BobIntensityResponseTime * 3.0;
-		}
-		else
-		{
-			m_BobAmplitude.m_SmoothTime = previousMovementSpeed < movementSpeed
-				? m_BobIntensityResponseTime * 0.7
-				: m_BobIntensityResponseTime; // TODO: Make these properties.
-		}
+		m_BobAmplitude.m_Target = m_BobIntensity * min(1.0, m_BobInput.GetValue(), speedPercentage);
 
 		m_BobAmplitude.Update();
-		m_BobPlaybackSpeed.m_Target = speedPercentage;
+		m_BobPlaybackSpeed.m_Target = m_BobInput.GetValue() * speedPercentage;
 		m_BobPlaybackSpeed.Update();
 
 		m_BobPlayback += 1 * m_BobPlaybackSpeed.GetValue();
@@ -1152,7 +1159,7 @@ class WeaponSwayer : InterpolatedPSpriteTransform
 		m_Scale.SetValue(m_InterpolatedScale.GetValue());
 	}
 
-	void AddForce(vector2 translationForce, double rotationForce = 0.0, vector2 scaleForce = (1.0, 1.0))
+	void AddForce(vector2 translationForce, double rotationForce = 0.0, vector2 scaleForce = (0.0, 0.0))
 	{
 		m_InterpolatedTranslation.m_Target += translationForce;
 		m_InterpolatedRotation.m_Target += rotationForce;
