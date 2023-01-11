@@ -10,7 +10,6 @@ class ExampleStatusBar : DoomStatusBar
 
 		if (weap)
 		{
-			Console.Printf("Here.");
 			HUDExtension extension = weap.GetHUDExtension();
 
 			if (extension)
