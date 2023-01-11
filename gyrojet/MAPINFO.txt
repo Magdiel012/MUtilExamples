@@ -2,7 +2,7 @@ GameInfo
 {
 	PlayerClasses = "ExamplePlayer"
 
-	//StatusBarClass = "ExampleStatusBar"
+	StatusBarClass = "ExampleStatusBar"
 	
 	AddEventHandlers = "SectorDataRegistry", "WorldAgentHandler"
 }

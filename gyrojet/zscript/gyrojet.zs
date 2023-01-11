@@ -37,7 +37,7 @@ class Gyrojet : WeaponBase
 		Weapon.SlotNumber 2;
 
 		WeaponBase.MachineType "SMGyrojetMachine";
-		WeaponBase.HUDExtensionType "";
+		WeaponBase.HUDExtensionType "GyrojetHUD";
 		WeaponBase.BobAnimation 'GyrojetBob';
 
 		WeaponBase.MaxRecoilTranslationX 20.0;
@@ -173,6 +173,9 @@ class Gyrojet : WeaponBase
 		}
 	}
 
+	override int GetAmmo() const { return m_Rounds; }
+	override int GetReserveAmmo() const { return Ammo1.Amount; }
+
 	EFireMode GetFireMode() const
 	{
 		return m_FireMode;
@@ -278,7 +281,7 @@ class SMGyrojetIdle : SMWeaponState
 	override void EnterState()
 	{
 		let gyro = Gyrojet(GetWeapon());
-		// gyro.GetHUDExtension().SendEventToSM('WeaponActive');
+		gyro.GetHUDExtension().SendEventToSM('WeaponActive');
 		SetWeaponSprite("Idle");
 	}
 }
@@ -291,7 +294,7 @@ class SMGyrojetFiring : SMWeaponState
 	{
 		shotCount = 0;
 		let gyro = Gyrojet(GetWeapon());
-		// gyro.GetHUDExtension().SendEventToSM('WeaponActive');
+		gyro.GetHUDExtension().SendEventToSM('WeaponActive');
 		SetWeaponSprite("Firing");
 	}
 
@@ -304,10 +307,10 @@ class SMGyrojetFiring : SMWeaponState
 				gyro.FireProjectile(
 					"GyroRocket",
 					(1.0, 1.0),
-					(10.0, 8.0, 4.0),
+					(7.5, 5.5, 2.0),
 					ammoCost: 0);
 				gyro.m_Rounds -= gyro.AmmoUse1;
-				// gyro.GetHUDExtension().SendEventToSM(eventID);
+				gyro.GetHUDExtension().SendEventToSM(eventID);
 				return true;
 
 			case 'FireComplete':
@@ -333,7 +336,7 @@ class SMGyrojetReloadStart : SMWeaponState
 	{
 		SetWeaponSprite('ReloadStart');
 		let gyro = Gyrojet(GetWeapon());
-		// gyro.GetHUDExtension().SendEventToSM('WeaponReloading');
+		gyro.GetHUDExtension().SendEventToSM('WeaponReloading');
 	}
 }
 
@@ -359,7 +362,7 @@ class SMGyrojetReloadMid : SMWeaponState
 	override void ExitState()
 	{
 		let gyro = Gyrojet(GetWeapon());
-		// gyro.GetHUDExtension().SendEventToSM('ReloadComplete');
+		gyro.GetHUDExtension().SendEventToSM('ReloadComplete');
 	}
 }
 
@@ -378,7 +381,7 @@ class SMGyrojetReloadInterruptTransition : SMGyrojetRefireTransition
 	override void OnTransitionPerformed(SMStatePlay inState)
 	{
 		let gyro = Gyrojet(inState.GetData());
-		// gyro.GetHUDExtension().SendEventToSM('ReloadInterrupted');
+		gyro.GetHUDExtension().SendEventToSM('ReloadInterrupted');
 	}
 }
 

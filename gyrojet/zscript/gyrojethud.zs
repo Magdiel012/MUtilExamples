@@ -1,6 +1,6 @@
 class GyrojetHUD : HUDExtension
 {
-	const JITTER_MAX_MAGNITUDE = 0.0115;
+	const JITTER_MAX_MAGNITUDE = 0.0085;
 	const JITTER_SMOOTH_TIME = 0.3;
 
 	const FONT_SCALE = 2.25;
@@ -64,17 +64,8 @@ class GyrojetHUD : HUDExtension
 			1.0 / TICRATE);
 	}
 
-	override void Draw(RenderEvent event)
+	override void Draw(int state, double ticFrac)
 	{
-		// The HUD font needs to be transient, so it'll be cleared when
-		// loading a save and if that happens there's no way to create it
-		// before the first draw call.
-		if (!m_AmmoFont)
-		{
-			Font roundsFont = "JENOBIG";
-			m_AmmoFont = HUDFont.Create(roundsFont);
-		}
-
 		if (uiscale == 0)
 		{
 			int vscale = Screen.GetHeight() / 400;
@@ -86,7 +77,7 @@ class GyrojetHUD : HUDExtension
 			m_UIScale = uiscale;
 		}
 
-		Super.Draw(event);
+		Super.Draw(state, ticFrac);
 	}
 
 	ui double GetUIScale() const
@@ -108,7 +99,7 @@ class SMHUDGyrojetState : SMHUDState
 		if (!m_GyrojetHUD) m_GyrojetHUD = GyrojetHUD(GetData());
 	}
 
-	override void PreDraw(RenderEvent event)
+	override void PreDraw(int state, double ticFrac)
 	{
 		if (automapactive) return;
 
@@ -121,14 +112,13 @@ class SMHUDGyrojetState : SMHUDState
 		StatusBar.BeginHUD(forcescaled: true);
 	}
 
-	override void Draw(RenderEvent event)
+	override void Draw(int state, double ticFrac)
 	{
 		if (automapactive) return;
 
 		vector2 ammoLabelOrigin = (m_GyrojetHUD.m_HUDOrigin.x, m_GyrojetHUD.m_HUDOrigin.y - 0.05);
 		vector2 ammoLabelScale = ScreenUtil.ScaleRelativeToBaselineRes(
-			GyrojetHUD.FONT_SCALE * max(1.0, uiscale),
-			GyrojetHUD.FONT_SCALE * max(1.0, uiscale),
+			(GyrojetHUD.FONT_SCALE * max(1.0, uiscale), GyrojetHUD.FONT_SCALE * max(1.0, uiscale)),
 			StatusBar.HorizontalResolution,
 			StatusBar.VerticalResolution);
 
@@ -139,8 +129,7 @@ class SMHUDGyrojetState : SMHUDState
 
 		vector2 fireModeOrigin = (1.0, m_GyrojetHUD.m_HUDOrigin.y + 0.02);
 		vector2 fireModeScale = ScreenUtil.ScaleRelativeToBaselineRes(
-			2.0 * max(1.0, uiscale),
-			2.0 * max(1.0, uiscale),
+			(2.0 * max(1.0, uiscale), 2.0 * max(1.0, uiscale)),
 			StatusBar.HorizontalResolution,
 			StatusBar.VerticalResolution);
 
@@ -168,7 +157,7 @@ class SMHUDGyrojetState : SMHUDState
 			scale: fireModeScale);
 	}
 
-	override void PostDraw(RenderEvent event)
+	override void PostDraw(int state, double ticFrac)
 	{
 		if (automapactive) return;
 
@@ -197,19 +186,18 @@ class SMHUDGyrojetActive : SMHUDGyrojetState
 		}
 	}
 
-	override void Draw(RenderEvent event)
+	override void Draw(int state, double ticFrac)
 	{
-		Super.Draw(event);
+		Super.Draw(state, ticFrac);
 
 		if (automapactive) return;
 
-		double jitterScale = Math.Lerp(m_GyrojetHUD.m_JitterScale, m_GyrojetHUD.m_NextJitterScale, event.FracTic);
+		double jitterScale = Math.Lerp(m_GyrojetHUD.m_JitterScale, m_GyrojetHUD.m_NextJitterScale, ticFrac);
 
 		vector2 roundsJitter = (m_GyrojetHUD.m_BaseRoundsJitter.x * jitterScale, m_GyrojetHUD.m_BaseRoundsJitter.y * jitterScale);
 
 		vector2 ammoFontScale = ScreenUtil.ScaleRelativeToBaselineRes(
-			GyrojetHUD.FONT_SCALE * max(1.0, uiscale),
-			GyrojetHUD.FONT_SCALE * max(1.0, uiscale),
+			(GyrojetHUD.FONT_SCALE * max(1.0, uiscale), GyrojetHUD.FONT_SCALE * max(1.0, uiscale)),
 			StatusBar.HorizontalResolution,
 			StatusBar.VerticalResolution);
 
@@ -218,8 +206,7 @@ class SMHUDGyrojetActive : SMHUDGyrojetState
 			m_GyrojetHUD.m_HUDOrigin.y + 0.05);
 
 		vector2 ammoCountArea = ScreenUtil.ScaleRelativeToBaselineRes(
-			0.2 * log(max(1.0, uiscale) * 1.5),
-			0.2 * log(max(1.0, uiscale) * 1.5),
+			(0.2 * log(max(1.0, uiscale) * 1.5), 0.2 * log(max(1.0, uiscale) * 1.5)),
 			StatusBar.HorizontalResolution,
 			StatusBar.VerticalResolution);
 
@@ -249,7 +236,7 @@ class SMHUDGyrojetActive : SMHUDGyrojetState
 
 		string roundsText = m_GyrojetHUD.m_WhoaTimer > 0.0
 			? "WHOA!!"
-			: StatusBarCore.FormatNumber(m_GyrojetHUD.m_Gyrojet.m_Rounds);
+			: StatusBarCore.FormatNumber(m_GyrojetHUD.m_Gyrojet.GetAmmo());
 
 		StatusBar.DrawString(
 			m_GyrojetHUD.m_AmmoFont,
@@ -262,17 +249,24 @@ class SMHUDGyrojetActive : SMHUDGyrojetState
 		vector2 dividerEnd = ScreenUtil.NormalizedPositionToView(ammoCountBottomLeft);
 
 		Screen.DrawThickLine(
+			dividerStart.x + 2,
+			dividerStart.y + 2,
+			dividerEnd.x + 2,
+			dividerEnd.y + 2,
+			9, 0x000000);
+
+		Screen.DrawThickLine(
 			dividerStart.x,
 			dividerStart.y,
 			dividerEnd.x,
 			dividerEnd.y,
-			3, 0xc70000);
+			6, 0xc70000);
 
 		vector2 capacityPosition = ScreenUtil.NormalizedPositionToView(ammoCountTextBottomRight);
 
 		StatusBar.DrawString(
 			m_GyrojetHUD.m_AmmoFont,
-			StatusBarCore.FormatNumber(m_GyrojetHUD.m_Gyrojet.m_Capacity),
+			StatusBarCore.FormatNumber(m_GyrojetHUD.m_Gyrojet.GetReserveAmmo()),
 			capacityPosition,
 			StatusBarCore.DI_TEXT_ALIGN_LEFT,
 			scale: ammoFontScale);
@@ -307,24 +301,22 @@ class SMHUDGyrojetReloading : SMHUDGyrojetState
 		m_FadePlayback++;
 	}
 
-	override void Draw(RenderEvent event)
+	override void Draw(int state, double ticFrac)
 	{
-		Super.Draw(event);
+		Super.Draw(state, ticFrac);
 
 		if (automapactive) return;
 
 		vector2 ammoFontScale = ScreenUtil.ScaleRelativeToBaselineRes(
-			GyrojetHUD.FONT_SCALE * max(1.0, uiscale),
-			GyrojetHUD.FONT_SCALE * max(1.0, uiscale),
+			(GyrojetHUD.FONT_SCALE * max(1.0, uiscale), GyrojetHUD.FONT_SCALE * max(1.0, uiscale)),
 			StatusBar.HorizontalResolution,
 			StatusBar.VerticalResolution);
 
-		vector2 reloadTextOrigin = ScreenUtil.NormalizedPositionToView((
-			m_GyrojetHUD.m_HUDOrigin.x - 0.01,
-			m_GyrojetHUD.m_HUDOrigin.y + 0.05));
+		vector2 reloadTextOrigin = ScreenUtil.NormalizedPositionToView(
+			(m_GyrojetHUD.m_HUDOrigin.x - 0.01, m_GyrojetHUD.m_HUDOrigin.y + 0.05));
 		reloadTextOrigin.y -= GyrojetHUD.JENOBIG_BASE_HEIGHT / 2.0 * ammoFontScale.y;
 
-		double alphaPlayback = (m_FadePlayback + event.FracTic) / TICRATE * 180.0;
+		double alphaPlayback = (m_FadePlayback + ticFrac) / TICRATE * 180.0;
 		double textAlpha = sin(alphaPlayback * 2.0) / 4.0 + 0.75;
 
 		StatusBar.DrawString(
@@ -353,25 +345,23 @@ class SMHUDGyrojetMachine : SMHUDMachine
 	{
 		Super.Build();
 
-		GetHUDActiveState()
-			.AddChild(new("SMHUDGyrojetActive"))
-			.AddChild(new("SMHUDGyrojetReloading"))
+			AddChild(new("SMHUDGyrojetActive"));
+			AddChild(new("SMHUDGyrojetReloading"));
 
-			.AddTransition(new("SMTransition")
+			AddTransition(new("SMTransition")
 				.From("SMHUDGyrojetActive")
 				.To("SMHUDGyrojetReloading")
 				.On('WeaponReloading')
-			)
-			.AddTransition(new("SMTransition")
+			);
+			AddTransition(new("SMTransition")
 				.From("SMHUDGyrojetReloading")
 				.To("SMHUDGyrojetActive")
 				.On('ReloadComplete')
-			)
-			.AddTransition(new("SMHUDGyrojetReloadInterruptTransition")
+			);
+			AddTransition(new("SMHUDGyrojetReloadInterruptTransition")
 				.From("SMHUDGyrojetReloading")
 				.To("SMHUDGyrojetActive")
 				.On('ReloadInterrupted')
-			)
-		;
+			);
 	}
 }

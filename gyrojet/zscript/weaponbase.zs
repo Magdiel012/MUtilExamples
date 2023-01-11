@@ -1,4 +1,4 @@
-class WeaponBase : DoomWeapon abstract
+class WeaponBase : DoomWeapon
 {
 	// Smart auto-aim modes.
 	const SAIM_OFF = 0;
@@ -283,6 +283,9 @@ class WeaponBase : DoomWeapon abstract
 		m_PreviousPlayerPitch = owner.Pitch;
 		m_PreviousPlayerVel = owner.Vel;
 	}
+
+	virtual int GetAmmo() const { return -1; }
+	virtual int GetReserveAmmo() const { return -1; }
 
 	virtual void TryHandleButtonEvent(int event, int eventType) { }
 
@@ -690,8 +693,8 @@ class WeaponBase : DoomWeapon abstract
 
 		let position = spawnPoint + zxyOffset;
 
-		yaw += (spread.x * Random2() / 255.0);
-		pitch += (spread.y * Random2() / 255.0);
+		yaw += FRandom(-spread.x, spread.x);
+		pitch += FRandom(-spread.y, spread.y);
 
 		let projectile = SpawnProjectile(projectileType, (position.x, position.y, position.z), yaw, pitch);
 
