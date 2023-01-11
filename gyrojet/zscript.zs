@@ -5,7 +5,7 @@ version "4.10.0"
 
 // UI
 #include "zscript/examplestatusbar.zs"
-#include "zscript/gyrojethud.zs"
+// #include "zscript/gyrojethud.zs"
 
 // Weapons
 #include "zscript/weaponbase.zs"
