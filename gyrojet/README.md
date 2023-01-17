@@ -1,0 +1,13 @@
+# Gyrojet port
+
+This example is a port of the Gyrojet from [Joblez's Gunslinget Set mod](https://forum.zdoom.org/viewtopic.php?t=72780), built using my personal base weapon framework. It makes heavy use of the state machine implementation to construct intricate weapon logic in an extensible fashion. It also demonstrates how to use the HUD extension system with a custom status bar.
+
+## Design principles
+
+The core design principle behind the weapon implementation is that traditional states no longer represent the logical flow of a weapon's function. This is instead handled by the weapon's state machine, with traditional states communicating animation-dependent events to to the machine through the state classes' event system. As a general rule, audiovisual effects are handled entirely within traditional states, while gameplay-altering logic is handled by the state machine, where the state machine receives events sent by method calls in the traditional states, and responds by performing logic or setting a different traditional state for the weapon.
+
+The HUD extension implementation for the gyrojet is comparatively simpler. While the `HUDExtension` class also allows for state machine integration, this is not essential to its function. Most of the code in the gyrojet's HUD resembles code that one may write within the `Draw()` method of a proper status bar, albeit separated into stages and with aid from MUtil's `ScreenUtil` class. The gyrojet HUD's custom state machine serves primarily to make the HUD reactive, altering the display based on what the weapon may be doing at any given time.
+
+## WeaponBase remarks
+
+The `WeaponBase` class, while in many ways robust and quite useful, is considerably opinionated in its usage patterns and represents a rather stark departure from traditional weapon scripting. Of course, the state machine implementation makes this evident, but it's also noticeable in the way `WeaponBase`-based weapons handle by default, chiefly due to the built-in, enabled-by-default weapon sway. This is in part due to it's history: `WeaponBase` is among the first things I worked on for a Doom mod. It's a relic from a time before I knew the engine as well as I do know, and brings with it many holdovers. Originally, and for a very long time, `WeaponBase` was part of MUtil as a whole, but I decided against including it in the 1.0.0 release of the library because it carries with it a rather steep learning curve and I believe it would go underutilized in comparison with the rest of the library, even if I took on the gargantuan task of documenting it thoroughly.
