@@ -15,7 +15,7 @@ maximize performance. It would be impractical to attempt to provide metrics
 encompassing the breadth of computer hardware that may play mods utilizing this
 system, but to at least mention an anecdotal remark, the machine used to develop
 this system sports an RTX 3050 GPU, a Ryzen 7 5800X processor at 3.8 Ghz, and is
-connected to a 1440p display.As currently configured, in MAP02, performance
+connected to a 1440p display. As currently configured, in MAP02, performance
 averaged around 240 FPS at Ultra settings.
 
 ## Use case considerations
