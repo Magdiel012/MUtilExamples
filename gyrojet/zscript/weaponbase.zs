@@ -339,7 +339,7 @@ class WeaponBase : DoomWeapon
 		m_StateMachine.SendEvent(eventId);
 	}
 
-	void FireBullet(vector2 spread = (4, 4), int damage = -1, double range = -1.0, int ammoCost = -1, int fireType = PrimaryFire)
+	Actor FireBullet(vector2 spread = (4, 4), int damage = -1, double range = -1.0, int ammoCost = -1, int fireType = PrimaryFire)
 	{
 		FTranslatedLineTarget t;
 		double yaw = owner.Angle;
@@ -353,11 +353,13 @@ class WeaponBase : DoomWeapon
 			[yaw, pitch] = GetAutoAimRotation(yaw, pitch, range, t);
 		}
 
-		FireBulletInternal(spread, damage, range, yaw, pitch, t);
+		Actor hitTarget = FireBulletInternal(spread, damage, range, yaw, pitch, t);
 		DoAttackSideEffects(ammoCost, fireType);
+
+		return hitTarget;
 	}
 
-	void FireBullets(int amount = 1, vector2 spread = (4, 4), int damage = -1, double range = -1.0, int ammoCost = -1, int fireType = PrimaryFire)
+	void FireBullets(int amount = 1, vector2 spread = (4, 4), int damage = -1, double range = -1.0, int ammoCost = -1, int fireType = PrimaryFire, out array<Actor> hitActors = null)
 	{
 		if (amount < 1) return;
 
@@ -373,7 +375,11 @@ class WeaponBase : DoomWeapon
 			[yaw, pitch] = GetAutoAimRotation(yaw, pitch, range, t);
 		}
 
-		for (int i = 0; i < amount; ++i) FireBulletInternal(spread, damage, range, yaw, pitch, t);
+		for (int i = 0; i < amount; ++i)
+		{
+			Actor hitTarget = FireBulletInternal(spread, damage, range, yaw, pitch, t);
+			if (hitActors && hitTarget) hitActors.Push(hitTarget);
+		}
 		DoAttackSideEffects(ammoCost, fireType);
 	}
 
@@ -398,7 +404,7 @@ class WeaponBase : DoomWeapon
 		return projectile;
 	}
 
-	void FireProjectiles(class<Actor> projectileType, int amount = 1, vector2 spread = (4, 4), vector3 spawnOffset = (0, 0, 0), int ammoCost = -1, int fireType = PrimaryFire)
+	void FireProjectiles(class<Actor> projectileType, int amount = 1, vector2 spread = (4, 4), vector3 spawnOffset = (0, 0, 0), int ammoCost = -1, int fireType = PrimaryFire, out array<Actor> projectiles = null)
 	{
 		if (amount < 1) return;
 
@@ -416,7 +422,11 @@ class WeaponBase : DoomWeapon
 			[yaw, pitch] = GetAutoAimRotation(yaw, pitch, autoAimRange, t);
 		}
 
-		for (int i = 0; i < amount; ++i) FireProjectileInternal(projectileType, spread, spawnOffset, yaw, pitch, t);
+		for (int i = 0; i < amount; ++i)
+		{
+			Actor projectile = FireProjectileInternal(projectileType, spread, spawnOffset, yaw, pitch, t);
+			if (projectiles && projectile) projectiles.Push(projectile);
+		}
 		DoAttackSideEffects(ammoCost, fireType);
 	}
 
@@ -669,7 +679,7 @@ class WeaponBase : DoomWeapon
 			sin(m_BobPlayback * TICRATE * frequency) * amplitude));
 	}
 
-	private void FireBulletInternal(vector2 spread, int damage, double range, double yaw, double pitch, out FTranslatedLineTarget t)
+	private Actor FireBulletInternal(vector2 spread, int damage, double range, double yaw, double pitch, out FTranslatedLineTarget t)
 	{
 		let pawn = owner.Player.mo;
 
@@ -679,6 +689,8 @@ class WeaponBase : DoomWeapon
 		pitch += (spread.y * Random2() / 255.0);
 
 		let puff = pawn.LineAttack(yaw, range, pitch, damage, 'Hitscan', "BulletPuff", 0, t);
+		
+		return t.linetarget;
 	}
 
 	private Actor FireProjectileInternal(class<Actor> projectileType, vector2 spread, vector3 spawnOffset, double yaw, double pitch, out FTranslatedLineTarget t)
@@ -687,14 +699,14 @@ class WeaponBase : DoomWeapon
 
 		let pawn = owner.Player.mo;
 
-		// Bring to eye level
+		// Bring to eye level.
 		let spawnPoint = (0, 0, pawn.Player.viewz - pawn.Pos.z);
 		if (pawn.ViewPos) spawnPoint += pawn.ViewPos.Offset;
 
-		// Remap offset coordinates
+		// Remap offset coordinates.
 		vector3 zxyOffset = (spawnOffset.z, -spawnOffset.x, -spawnOffset.y);
 
-		// Rotate offset to view direction
+		// Rotate offset to view direction.
 		zxyOffset = MathVec3.Rotate(zxyOffset, Vec3Util.Left(), pawn.Pitch);
 		zxyOffset = MathVec3.Rotate(zxyOffset, Vec3Util.Up(), pawn.Angle);
 
